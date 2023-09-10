@@ -4,6 +4,13 @@ from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
 import getpass
 
+categories ={
+            "employée",
+            "client",
+            "contract",
+            "event",
+}
+
 class LoginView:
     """
     Login functions gets username and password 
@@ -26,7 +33,16 @@ class LoginView:
 class MenuView:
 
     def main_menu(self):
-        pass
+        options = []
+        for cat in categories:
+            cat = f"{cat.capitalize()}s"
+            options.append(Choice(cat))
+        options.append(Separator())
+        options.append(Choice(value=None, name="Exit"))
+        action = inquirer.select(message="Choisissez un menu:", choices=options, default="None",).execute()
+       
+        
+        return action
 
     def menu_department_gestion(self):
         pass
