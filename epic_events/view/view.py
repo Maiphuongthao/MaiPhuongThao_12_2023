@@ -1,5 +1,7 @@
 from epic_events.models import models
 from InquirerPy import prompts, inquirer
+from InquirerPy.base.control import Choice
+from InquirerPy.separator import Separator
 import getpass
 
 class LoginView:
@@ -22,6 +24,15 @@ class LoginView:
     
 
 class MenuView:
-    
+
+    def main_menu(self):
+        pass
+
     def menu_department_gestion(self):
-        
+        pass
+
+    def menu_department_commercial(self):
+        pass
+
+    def menu_department_support(self):
+        pass

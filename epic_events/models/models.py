@@ -14,12 +14,18 @@ class Employee(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(100), unique=True)
-    clients: Mapped[List['Client']] = relationship(back_populates='employee')
+    password: Mapped[str] = mapped_column(String(100))
+    clients: Mapped[List['Client']] = relationship(back_populates='commercial')
     events: Mapped[List['Event']] = relationship(back_populates='support')
     department: Mapped['Department'] = relationship(back_populates='employees')
     department_id: Mapped[int] = mapped_column(ForeignKey('departments.id'))
-    events: Mapped[List['Contract']] = relationship(back_populates='commercial')
     
+class Department(Base):
+    __tablename__='departments'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(50))
+    employees: Mapped[List['Employee']] = relationship(back_populates='department')
 
 class Client(Base):
     #table clients
@@ -67,9 +73,4 @@ class Event(Base):
     total_attendees: Mapped[int]=mapped_column(Integer)
     note: Mapped[str]=mapped_column(String(1024), nullable=True)
 
-class Department(Base):
-    __tablename__='departments'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50))
-    employees: Mapped[List['Employee']] = relationship(back_populates='department')
