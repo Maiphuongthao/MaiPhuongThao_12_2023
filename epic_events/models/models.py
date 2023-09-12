@@ -26,6 +26,17 @@ class Department(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     employees: Mapped[List['Employee']] = relationship(back_populates='department')
+    permissions: Mapped[List['Permission']] = relationship(back_populates='department')
+
+class Permission(Base):
+    __tablename__='permissions'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    department: Mapped["Department"] = relationship(back_populates='permissions')
+    department_id: Mapped[int] = mapped_column(ForeignKey('departments.id'))
+    ob_name: Mapped[str] = mapped_column(String(50))
+    ob_action: Mapped[str] = mapped_column(String(300))
+
 
 class Client(Base):
     #table clients

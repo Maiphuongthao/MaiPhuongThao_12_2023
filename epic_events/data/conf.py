@@ -1,9 +1,10 @@
 import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 
-from dotenv import load_dotenv
+
 
 
 
