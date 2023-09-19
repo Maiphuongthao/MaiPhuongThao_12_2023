@@ -1,5 +1,6 @@
 import pytest
 
+
 class TestDatabase:
     def test_database_connection(self, connection):
         # test connect to database

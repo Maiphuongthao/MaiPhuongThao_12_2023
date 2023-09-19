@@ -1,0 +1,12 @@
+[flake8]
+max-line-length = 119
+
+exclude=
+    .gitignore,
+    env/,
+    .pytest_cache/,
+    __pycache__,
+    .coverage,
+    .coveragerc,
+    README.md,
+    requirements.txt,
