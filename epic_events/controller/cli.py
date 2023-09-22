@@ -9,7 +9,7 @@ def cli():
     pass
 
 
-menu = MenuController()
+
 
 
 @cli.command("login")
@@ -21,6 +21,7 @@ def login():
 @cli.command("start")
 @is_authenticated
 def start():
+    menu = MenuController()
     menu.main_menu()
 
 

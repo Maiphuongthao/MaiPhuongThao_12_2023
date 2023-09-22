@@ -7,7 +7,14 @@ from jwt.exceptions import ExpiredSignatureError
 from typing import Union, Tuple
 from urllib.parse import urlparse
 from dotenv import load_dotenv
-from epic_events.data.dao import DepartmentDao, EmployeeDao, PermissionDao
+from epic_events.data.dao import (
+    DepartmentDao,
+    EmployeeDao,
+    PermissionDao,
+    ClientDao,
+    ContractDao,
+    EventDao,
+)
 from cryptography.hazmat.primitives import serialization
 
 
@@ -18,6 +25,9 @@ netrc_host = os.getenv("HOST")
 employee_dao = EmployeeDao()
 permission_dao = PermissionDao()
 department_dao = DepartmentDao()
+client_dao = ClientDao()
+contract_dao = ContractDao()
+event_dao = EventDao()
 
 
 def write_netrc(host: str, entity: str, key: str):
@@ -146,8 +156,8 @@ def get_department():
 
 def get_user_id():
     payload = get_payload()
-    employee = department_dao.get_by_id(payload["email"])
-    return employee
+    employee_id = employee_dao.get_by_email(payload["email"]).id
+    return employee_id
 
 
 def ob_for_main_menu(func):
@@ -178,7 +188,6 @@ def ob_for_actions_menu(func):
 
     def wrapper(*args, **kwargs):
         department = get_department()
-        employee = get_user_id()
         permissions = department.permissions
         permissions_list = [
             permission_dao.get_by_id(permission.id) for permission in permissions
@@ -195,3 +204,65 @@ def ob_for_actions_menu(func):
         func(*args, **kwargs, actions=actions)
 
     return wrapper
+
+
+def ob_field_for_update(ob_name, obj):
+    """
+    Get department with update ob_action
+    Then get ob_ty of action as all or owned to identify field to be returned
+    """
+    department = get_department()
+    employee_id = get_user_id()
+    permissions = department.permissions
+    permissions_list = [
+        permission_dao.get_by_id(permission.id) for permission in permissions
+    ]
+    # ob_names = []
+    ob_types = []
+    # for permission in permissions_list:
+    #     if permission.ob_action == "update":
+    #         ob_names.append(permission.ob_name)
+
+    # if kwargs['ob_name'] in ob_names:
+    for permission in permissions_list:
+        if permission.ob_action == "update":
+            ob_types.append(permission.ob_type)
+
+    ob_filtre_by_update_all = []
+
+    if "all" in ob_types:
+        if ob_name == "employee":
+            ob_filtre_by_update_all.append(employee_dao.get_all())
+        elif ob_name == "client":
+            ob_filtre_by_update_all.append(client_dao.get_all())
+        elif ob_name == "contract":
+            ob_filtre_by_update_all.append(contract_dao.get_all())
+        elif ob_name == "event":
+            ob_filtre_by_update_all = event_dao.get_all()
+
+    elif "owned" in ob_types:
+        if ob_name == "client":
+            ob_filtre_by_update_all.append(client_dao.get_by_commercial_id(employee_id))
+        elif ob_name == "contract":
+            ob_filtre_by_update_all.append(
+                contract_dao.get_by_commercial_id(employee_id)
+            )
+        elif ob_name == "event":
+            ob_filtre_by_update_all.append(event_dao.get_by_support_id(employee_id))
+        else:
+            click.echo("Pas d'access pour modifier")
+
+    fields = []
+
+    if obj in ob_filtre_by_update_all:
+        for per in permissions_list:
+            if per.ob_action == "update" and per.ob_name == ob_name:
+                fields.append(per.ob_field)
+            else:
+                click.echo("Pas d'access pour modifier")
+        if "all" in fields:
+            fields = None
+        else:
+            click.echo("Pas permission")
+
+    return fields

@@ -16,13 +16,12 @@ VALUES
     (1,'event', 'update', 'all', 'support_id'),
     (1,'event', 'read_no_support', 'no_support', 'na'),
     (2,'client', 'create', 'na', 'all'),
-    (2,'client', 'update', 'na', 'all'),
+    (2,'client', 'update', 'owned', 'all'),
     (2,'contract', 'update', 'owned', 'status'),
     (2,'contract', 'read_no_signature', 'no_signature', 'na'),
     (2,'contract', 'read_due_amount', 'due_amount', 'na'),
     (2,'event', 'create', 'na', 'all'),
-    (2,'event', 'update', 'owned', 'all'),
-    (3,'event', 'update', 'owned', 'note'),
+    (3,'event', 'update', 'owned', 'notes'),
     (3,'event', 'read_owned', 'owned', 'na'),
     (1,'event', 'read_all', 'all', 'na'),
     (2,'event', 'read_all', 'all', 'na'),
@@ -41,18 +40,24 @@ VALUES
     (3,'employee', 'read_one', 'all', 'all'),
     (1,'contract', 'read_one', 'all', 'all'),
     (2,'contract', 'read_one', 'all', 'all'),
-    (3,'contract', 'read_one', 'all', 'all');
+    (3,'contract', 'read_one', 'all', 'all'),
+    (1,'client', 'read_all', 'all', 'all'),
+    (2,'client', 'read_all', 'all', 'all'),
+    (3,'client', 'read_all', 'all', 'all'),
+    (1,'client', 'read_one', 'all', 'all'),
+    (2,'client', 'read_one', 'all', 'all'),
+    (3,'client', 'read_one', 'all', 'all');
 
 
 INSERT INTO employees (`name`, `email`, `password`, `department_id`)
 VALUES
-    ('Lucie Page', 'lucie@test.com','$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 1),
-    ('Benjamin Button', 'ben@test.com','$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 2),
-    ('Lao Nguyen', 'lao@test.com','$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 3);
+    ('Lucie Page', 'lucie@test.com', '$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 1),
+    ('Benjamin Button', 'ben@test.com', '$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 2),
+    ('Lao Nguyen', 'lao@test.com', '$argon2id$v=19$m=16,t=2,p=1$QmQ2VjZ1SEZGNVdteVVwaA$45lep5zDs1oJYdG66alo3w', 3);
     
 INSERT INTO clients (`name`, `email`, `telephone`, `company_name`, `commercial_id`)
 VALUES
-    ('first client', 'client1@test.com', '0612345678', 'company1', 1);
+    ('first client', 'client1@test.com', '0612345678', 'company1', 2);
 
 INSERT INTO contracts (`client_id`, `commercial_id`, `total_amount`, `due_amount`, `status`)
 VALUES
