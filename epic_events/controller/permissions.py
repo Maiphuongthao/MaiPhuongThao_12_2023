@@ -181,29 +181,26 @@ def ob_for_main_menu(func):
     return wrapper
 
 
-def ob_for_actions_menu(func):
+def ob_for_actions_menu(ob_name):
     """
     Check the permissions of user then return crud actions to menu
     """
-
-    def wrapper(*args, **kwargs):
-        department = get_department()
-        permissions = department.permissions
-        permissions_list = [
-            permission_dao.get_by_id(permission.id) for permission in permissions
-        ]
-        actions = list(
-            dict.fromkeys(
-                [
-                    permission.ob_action
-                    for permission in permissions_list
-                    if permission.ob_name == kwargs["ob_name"]
-                ]
-            )
+    department = get_department()
+    permissions = department.permissions
+    permissions_list = [
+        permission_dao.get_by_id(permission.id) for permission in permissions
+    ]
+    actions = list(
+        dict.fromkeys(
+            [
+                permission.ob_action
+                for permission in permissions_list
+                if permission.ob_name == ob_name
+            ]
         )
-        func(*args, **kwargs, actions=actions)
+    )
 
-    return wrapper
+    return actions
 
 
 def ob_field_for_update(ob_name, obj):
@@ -228,41 +225,34 @@ def ob_field_for_update(ob_name, obj):
         if permission.ob_action == "update":
             ob_types.append(permission.ob_type)
 
-    ob_filtre_by_update_all = []
+    ob_filtre_by_update_all = None
 
     if "all" in ob_types:
         if ob_name == "employee":
-            ob_filtre_by_update_all.append(employee_dao.get_all())
+            ob_filtre_by_update_all = employee_dao.get_all()
         elif ob_name == "client":
-            ob_filtre_by_update_all.append(client_dao.get_all())
+            ob_filtre_by_update_all = client_dao.get_all()
         elif ob_name == "contract":
-            ob_filtre_by_update_all.append(contract_dao.get_all())
+            ob_filtre_by_update_all = contract_dao.get_all()
         elif ob_name == "event":
             ob_filtre_by_update_all = event_dao.get_all()
 
     elif "owned" in ob_types:
         if ob_name == "client":
-            ob_filtre_by_update_all.append(client_dao.get_by_commercial_id(employee_id))
+            ob_filtre_by_update_all = client_dao.get_by_commercial_id(employee_id)
         elif ob_name == "contract":
-            ob_filtre_by_update_all.append(
-                contract_dao.get_by_commercial_id(employee_id)
-            )
+            ob_filtre_by_update_all = contract_dao.get_by_commercial_id(employee_id)
         elif ob_name == "event":
-            ob_filtre_by_update_all.append(event_dao.get_by_support_id(employee_id))
-        else:
-            click.echo("Pas d'access pour modifier")
+            ob_filtre_by_update_all = event_dao.get_by_support_id(employee_id)
 
     fields = []
-
     if obj in ob_filtre_by_update_all:
         for per in permissions_list:
             if per.ob_action == "update" and per.ob_name == ob_name:
                 fields.append(per.ob_field)
-            else:
-                click.echo("Pas d'access pour modifier")
         if "all" in fields:
             fields = None
-        else:
-            click.echo("Pas permission")
+    else:
+        click.echo("Pas permission")
 
     return fields

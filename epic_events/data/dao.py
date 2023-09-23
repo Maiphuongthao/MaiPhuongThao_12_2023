@@ -8,6 +8,7 @@ from epic_events.models.models import (
     Permission,
     Department,
 )
+import sentry_sdk
 
 
 class EmployeeDao:
@@ -27,27 +28,32 @@ class EmployeeDao:
         return Employee.__table__.columns.keys()
 
     def add(self, datas):
-        employee = Employee(
-            name=datas["name"],
-            email=datas["email"],
-            password=datas["password"],
-            department_id=datas["department_id"],
-        )
-        session.add(employee)
-        session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Add employee"):
+            employee = Employee(
+                name=datas["name"],
+                email=datas["email"],
+                password=datas["password"],
+                department_id=datas["department_id"],
+            )
+            session.add(employee)
+            session.commit()
 
     def delete(self, employee):
         session.delete(employee)
         session.commit()
 
+    @sentry_sdk.trace
     def update(self, key, value, employee):
-        if value:
-            #breakpoint()
-            session.execute(
-                update(Client),
-                [{"id":employee.id, key: value}],
-            )
-            session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Add employee"):
+            if value:
+                # breakpoint()
+                session.execute(
+                    update(Employee),
+                    [{"id": employee.id, key: value}],
+                )
+                session.commit()
+
+
 class ClientDao:
     def get_all(self):
         clients = session.query(Client).all()
@@ -61,15 +67,16 @@ class ClientDao:
         return Client.__table__.columns.keys()
 
     def add(self, datas):
-        client = Client(
-            name=datas["name"],
-            email=datas["email"],
-            telephone=datas["telephone"],
-            company_name=datas["company_name"],
-            commercial_id=datas["commercial_id"],
-        )
-        session.add(client)
-        session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Add client"):
+            client = Client(
+                name=datas["name"],
+                email=datas["email"],
+                telephone=datas["telephone"],
+                company_name=datas["company_name"],
+                commercial_id=datas["commercial_id"],
+            )
+            session.add(client)
+            session.commit()
 
     def get_by_commercial_id(self, commercial_id):
         clients = (
@@ -79,14 +86,16 @@ class ClientDao:
         )
         return clients
 
+    @sentry_sdk.trace
     def update(self, key, value, client):
-        if value:
-            #breakpoint()
-            session.execute(
-                update(Client),
-                [{"id":client.id, key: value}],
-            )
-            session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Update client"):
+            if value:
+                # breakpoint()
+                session.execute(
+                    update(Client),
+                    [{"id": client.id, key: value}],
+                )
+                session.commit()
 
 
 class DepartmentDao:
@@ -105,25 +114,26 @@ class EventDao:
         return events_all
 
     def get_by_id(self, event_id):
-        event = session.query(Employee).get(event_id)
+        event = session.query(Event).get(event_id)
         return event
 
     def get_columns_key(self):
         return Event.__table__.columns.keys()
 
     def add(self, datas):
-        event = Event(
-            contract_id=datas["contract_id"],
-            client_id=datas["client_id"],
-            start_date=datas["start_date"],
-            end_date=datas["end_date"],
-            support_id=datas["support_id"],
-            location=datas["location"],
-            total_attendees=datas["total_attendees"],
-            notes=datas["notes"],
-        )
-        session.add(event)
-        session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Add event"):
+            event = Event(
+                contract_id=datas["contract_id"],
+                client_id=datas["client_id"],
+                start_date=datas["start_date"],
+                end_date=datas["end_date"],
+                support_id=datas["support_id"],
+                location=datas["location"],
+                total_attendees=datas["total_attendees"],
+                notes=datas["notes"],
+            )
+            session.add(event)
+            session.commit()
 
     def get_by_support_id(self, support_id):
         events = (
@@ -134,21 +144,27 @@ class EventDao:
         return events
 
     def get_no_support(self):
-        events = session.execute(
-            select(Event).where(
-                Event.support_id == None,
-            )
-        ).scalars()
-        return events
-    
-    def update(self, key, value, event):
-        if value:
-            #breakpoint()
+        events = (
             session.execute(
-                update(Client),
-                [{"id":event.id, key: value}],
+                select(Event).where(
+                    Event.support_id == None,
+                )
             )
-            session.commit()
+            .scalars()
+            .all()
+        )
+        return events
+
+    @sentry_sdk.trace
+    def update(self, key, value, event):
+        with sentry_sdk.start_transaction(op="task", name="Update event"):
+            if value:
+                # breakpoint()
+                session.execute(
+                    update(Event),
+                    [{"id": event.id, key: value}],
+                )
+                session.commit()
 
 
 class ContractDao:
@@ -164,15 +180,16 @@ class ContractDao:
         return Contract.__table__.columns.keys()
 
     def add(self, datas):
-        contract = Contract(
-            client_id=datas["client_id"],
-            commercial_id=datas["commercial_id"],
-            total_amount=datas["total_amount"],
-            due_amount=datas["due_amount"],
-            status=datas["status"],
-        )
-        session.add(contract)
-        session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Add contract"):
+            contract = Contract(
+                client_id=datas["client_id"],
+                commercial_id=datas["commercial_id"],
+                total_amount=datas["total_amount"],
+                due_amount=datas["due_amount"],
+                status=datas["status"],
+            )
+            session.add(contract)
+            session.commit()
 
     def get_by_commercial_id(self, commercial_id):
         contracts = (
@@ -186,11 +203,15 @@ class ContractDao:
         return contracts
 
     def get_due_amount_higher_than_zero(self):
-        contracts = session.execute(
-            select(Contract).where(
-                Contract.due_amount > 0,
+        contracts = (
+            session.execute(
+                select(Contract).where(
+                    Contract.due_amount > 0,
+                )
             )
-        ).all()
+            .scalars()
+            .all()
+        )
         return contracts
 
     def get_unsigned_contracts(self):
@@ -216,14 +237,16 @@ class ContractDao:
         )
         return contracts
 
+    @sentry_sdk.trace
     def update(self, key, value, contract):
-        if value:
-            #breakpoint()
-            session.execute(
-                update(Client),
-                [{"id":contract.id, key: value}],
-            )
-            session.commit()
+        with sentry_sdk.start_transaction(op="task", name="Update contract"):
+            if value:
+                # breakpoint()
+                session.execute(
+                    update(Contract),
+                    [{"id": contract.id, key: value}],
+                )
+                session.commit()
 
 
 class PermissionDao:

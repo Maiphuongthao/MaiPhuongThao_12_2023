@@ -295,6 +295,7 @@ class MenuView:
             for ob in ob_list:
                 self.client_view.table_row(table, ob)
         if ob_name == "contract":
+            # breakpoint()
             table = self.contract_view.table_contract(table)
             for ob in ob_list:
                 self.contract_view.table_row(table, ob)
@@ -348,7 +349,6 @@ class MenuView:
             value = self.event_view.prompt_attendees(key)
         elif key == "client_id":
             value = self.contract_view.prompt_client(key)
-
         elif key == "contract_id":
             value = self.event_view.prompt_contract_id(key, employee_id)
         elif key == "status":
@@ -361,6 +361,8 @@ class MenuView:
             # datas[key] = self.date_inquirer(key)
             format = "%d/%m/%Y"
             value = self.check_date(key, format)
+        elif key == "exit":
+            value = "exit"
         else:
             value = inquirer.text(
                 message=f"{attributes[key]}:",
@@ -381,23 +383,31 @@ class MenuView:
         return datas
 
     def prompt_for_update(self, ob, fields, employee_id):
-        fields = fields if fields else [field for field in ob.__dict__.keys()]
-        choices = [
-            Choice(field, name=f"{field}: {value}")
-            for field, value in ob.__dict__.items()
-            if (field in attributes)
-        ]
+        if fields:
+            for k in fields:
+                field = k
+                value = ob.__dict__.get("notes")
+            choices = [Choice(field, name=f"{field}: {value}")]
+        else:
+            for f in ob.__dict__.keys():
+                field = f
+
+            choices = [
+                Choice(field, name=f"{field}: {value}")
+                for field, value in ob.__dict__.items()
+                if (field in attributes)
+            ]
         choices.append(Separator())
         choices.append(
             Choice(value="exit", name="Retourner"),
         )
-
         modify_field = inquirer.select(
             message="Veuillez selectionner le champs à modifier:",
             choices=choices,
             default=None,
         ).execute()
         modify_field, new_value = self.field_conditions(modify_field, employee_id)
+
         return modify_field, new_value
 
     def check_date(self, key, format):

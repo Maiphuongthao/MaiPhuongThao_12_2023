@@ -29,7 +29,6 @@ event_dao = EventDao()
 contract_dao = ContractDao()
 
 
-
 class LoginController:
     def __init__(self):
         self.menu_controller = MenuController()
@@ -82,8 +81,8 @@ class MenuController:
             else:
                 self.crud_menu(ob_name=choice)
 
-    @ob_for_actions_menu
-    def crud_menu(self, ob_name: str, actions: list = None):
+    def crud_menu(self, ob_name):
+        actions = ob_for_actions_menu(ob_name)
         while True:
             choice = menu_view.actions_menu(ob_name, actions)
             if choice == "exit":
@@ -92,14 +91,30 @@ class MenuController:
                 self.read_all(ob_name)
             elif choice == "read_one":
                 ob = self.get_ob_by_id(ob_name, "read")
-                self.read_one(ob_name, ob)
+                if ob:
+                    self.read_one(ob_name, ob)
+                else:
+                    self.crud_menu(ob_name)
             elif choice == "create":
                 self.create_one(ob_name)
             elif choice == "delete":
                 self.delete(ob_name)
             elif choice == "update":
                 obj = self.get_ob_by_id(ob_name, "update")
-                self.update(ob_name, obj)
+                if obj:
+                    self.update(ob_name, obj)
+                else:
+                    self.crud_menu(ob_name)
+            elif choice == "read_no_support":
+                self.read_no_support(ob_name)
+            elif choice == "read_no_signature":
+                self.read_no_signature(ob_name)
+            elif choice == "read_due_amount":
+                self.read_due_amount(ob_name)
+            elif choice == "read_owned":
+                self.read_owned(ob_name)
+            else:
+                click.echo("Not allowed.")
 
     def get_ob_by_id(self, ob_name, action):
         obj_id = menu_view.prompt_for_object_id(ob_name, action, self.employee_id)
@@ -131,6 +146,7 @@ class MenuController:
         menu_view.show_list(ob_name, obs_list)
 
     def read_one(self, ob_name, ob):
+        breakpoint
         menu_view.show_details(ob_name, ob)
 
     def create_one(self, ob_name):
@@ -172,16 +188,42 @@ class MenuController:
     def update(self, ob_name, obj):
         self.read_one(ob_name, obj)
         ob_fields = ob_field_for_update(ob_name, obj)
-        field, value = self.get_field_value_from_prompt(obj, ob_fields)
+        field, value = menu_view.prompt_for_update(obj, ob_fields, self.employee_id)
+        while True:
+            if "exit" in [field, value]:
+                break
+            else:
+                self.update_action(ob_name, obj, field, value)
+                break
 
+    def update_action(self, ob_name, obj, field, value):
         if ob_name == "employee":
             employee_dao.update(field, value, obj)
-        if ob_name == "client": 
+        if ob_name == "client":
             client_dao.update(field, value, obj)
-        if ob_name == "contract": 
+        if ob_name == "contract":
             contract_dao.update(field, value, obj)
-        if ob_name == "event": 
+        if ob_name == "event":
             event_dao.update(field, value, obj)
-        
         menu_view.action_confirmation("update", ob_name)
 
+    def read_no_support(self, ob_name):
+        events = event_dao.get_no_support()
+        menu_view.show_list(ob_name, events)
+
+    def read_no_signature(self, ob_name):
+        contracts = contract_dao.get_unsigned_contracts()
+        menu_view.show_list(ob_name, contracts)
+
+    def read_due_amount(self, ob_name):
+        contracts = contract_dao.get_due_amount_higher_than_zero()
+        menu_view.show_list(ob_name, contracts)
+
+    def read_owned(self, ob_name):
+        if ob_name == "contracts":
+            ob_list = contract_dao.get_by_commercial_id(self.employee_id)
+        elif ob_name == "event":
+            ob_list = event_dao.get_by_support_id(self.employee_id)
+        elif ob_name == "clent":
+            ob_list = client_dao.get_by_commercial_id(self.employee_id)
+        menu_view.show_list(ob_name, ob_list)

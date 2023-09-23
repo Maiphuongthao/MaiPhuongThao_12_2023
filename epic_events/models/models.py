@@ -9,7 +9,7 @@ from epic_events.data.conf import Base
 
 class Employee(Base):
     # table employees
-    __tablename__ = 'employees'
+    __tablename__ = "employees"
     # columns
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
@@ -23,7 +23,7 @@ class Employee(Base):
 
 
 class Department(Base):
-    __tablename__ = 'departments'
+    __tablename__ = "departments"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
@@ -32,7 +32,7 @@ class Department(Base):
 
 
 class Permission(Base):
-    __tablename__ = 'permissions'
+    __tablename__ = "permissions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     department: Mapped["Department"] = relationship(back_populates="permissions")
@@ -45,7 +45,7 @@ class Permission(Base):
 
 class Client(Base):
     # table clients
-    __tablename__ = 'clients'
+    __tablename__ = "clients"
     # columns
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
@@ -65,7 +65,7 @@ class Client(Base):
 
 
 class Contract(Base):
-    __tablename__ = 'contracts'
+    __tablename__ = "contracts"
     id: Mapped[int] = mapped_column(primary_key=True)
     client: Mapped["Client"] = relationship(back_populates="contracts")
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
@@ -81,7 +81,7 @@ class Contract(Base):
 
 
 class Event(Base):
-    __tablename__ = 'events'
+    __tablename__ = "events"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     contract: Mapped["Contract"] = relationship(back_populates="events")
@@ -95,4 +95,3 @@ class Event(Base):
     location: Mapped[str] = mapped_column(String(150))
     total_attendees: Mapped[int] = mapped_column(Integer)
     notes: Mapped[str] = mapped_column(String(1024), nullable=True)
-

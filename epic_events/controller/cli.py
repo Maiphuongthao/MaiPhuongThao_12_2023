@@ -9,9 +9,6 @@ def cli():
     pass
 
 
-
-
-
 @cli.command("login")
 def login():
     login = LoginController()
