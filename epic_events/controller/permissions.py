@@ -7,6 +7,7 @@ from jwt.exceptions import ExpiredSignatureError
 from typing import Union, Tuple
 from urllib.parse import urlparse
 from dotenv import load_dotenv
+from epic_events.data.conf import pub_key
 from epic_events.data.dao import (
     DepartmentDao,
     EmployeeDao,
@@ -20,7 +21,6 @@ from cryptography.hazmat.primitives import serialization
 
 load_dotenv()
 
-public_key = os.getenv("PUBLIC_KEY")
 netrc_host = os.getenv("HOST")
 employee_dao = EmployeeDao()
 permission_dao = PermissionDao()
@@ -96,7 +96,6 @@ def _find_netrc_token(machine: str, raise_errors=False):
         host = ri.netloc.split(":")[0]
 
         try:
-            # breakpoint()
             _netrc = netrc(netrc_path).authenticators(host)
             if _netrc:
                 login_i = 0 if _netrc[0] else 1
@@ -128,9 +127,14 @@ def is_authenticated(func):
 
     def wrapper(*args, **kwargs):
         try:
-            get_payload()
-            if func is not None:
-                func()
+            user, token = read_credentials(netrc_host)
+            #breakpoint()
+            if user == "None" or token == "None":
+                click.echo("Logged out , veuillez reconnecté!")     
+            else:
+                get_payload()
+                if func is not None:
+                    func() 
         except ExpiredSignatureError:
             click.echo("Connection expirée, connectez vous à nouveau.")
 
@@ -143,9 +147,11 @@ def get_token():
 
 
 def get_payload():
+    breakpoint()
     token = get_token()
-    key = serialization.load_pem_public_key(public_key.encode())
-    return jwt.decode(token, key, algorithms=["RS256"])
+    key = serialization.load_ssh_public_key(pub_key.encode())
+    header_data =jwt.get_unverified_header(token)
+    return jwt.decode(token, key, algorithms=[header_data['alg'], ])
 
 
 def get_department():

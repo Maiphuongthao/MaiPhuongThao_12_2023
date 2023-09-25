@@ -13,6 +13,7 @@ def cli():
 def login():
     login = LoginController()
     login.authentification()
+    
 
 
 @cli.command("start")
@@ -20,6 +21,13 @@ def login():
 def start():
     menu = MenuController()
     menu.main_menu()
+
+@cli.command("logout")
+@is_authenticated
+def logout():
+    menu = MenuController()
+    menu.logout()
+
 
 
 def execute_test_sql(file):
@@ -38,3 +46,4 @@ def execute_test_sql(file):
             print(f"Command skipped: {msg}")
 
     connection.commit()
+

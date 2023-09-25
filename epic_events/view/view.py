@@ -165,7 +165,6 @@ class MenuView:
 
     def update_condition(self, ob_name, employee_id):
         employee = employee_dao.get_by_id(employee_id)
-        # breakpoint()
         if ob_name == "employee":
             choices = [
                 Choice(value=employee.id, name=f"{employee.id} - {employee.name}")
@@ -221,7 +220,6 @@ class MenuView:
         if action in ["read", "read_all"]:
             choices = self.read_condition(ob_name)
         elif action == "update":
-            # breakpoint()
             choices = self.update_condition(ob_name, employee_id)
         elif action == "delete":
             if ob_name == "employee":
@@ -280,7 +278,6 @@ class MenuView:
             choices=choices,
             default=None,
         ).execute()
-        # breakpoint()
         return obj_id
 
     def show_list(self, ob_name, ob_list):
@@ -295,7 +292,6 @@ class MenuView:
             for ob in ob_list:
                 self.client_view.table_row(table, ob)
         if ob_name == "contract":
-            # breakpoint()
             table = self.contract_view.table_contract(table)
             for ob in ob_list:
                 self.contract_view.table_row(table, ob)

@@ -34,6 +34,20 @@ session = Session()
 
 Base = declarative_base()
 
+file = os.path.dirname(
+    os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))
+    )
+)
+
+path = ".ssh/secret.txt"
+pub_path = ".ssh/secret.txt.pub"
+with open(os.path.join(file, path)) as f:
+    key = f.read()
+
+with open(os.path.join(file, pub_path)) as f:
+    pub_key = f.read()
+
 sentry_sdk.init(
     dsn=os.getenv("DNS"),
     # Set traces_sample_rate to 1.0 to capture 100%

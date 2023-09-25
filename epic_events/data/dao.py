@@ -46,7 +46,6 @@ class EmployeeDao:
     def update(self, key, value, employee):
         with sentry_sdk.start_transaction(op="task", name="Add employee"):
             if value:
-                # breakpoint()
                 session.execute(
                     update(Employee),
                     [{"id": employee.id, key: value}],
@@ -90,7 +89,6 @@ class ClientDao:
     def update(self, key, value, client):
         with sentry_sdk.start_transaction(op="task", name="Update client"):
             if value:
-                # breakpoint()
                 session.execute(
                     update(Client),
                     [{"id": client.id, key: value}],
@@ -159,7 +157,6 @@ class EventDao:
     def update(self, key, value, event):
         with sentry_sdk.start_transaction(op="task", name="Update event"):
             if value:
-                # breakpoint()
                 session.execute(
                     update(Event),
                     [{"id": event.id, key: value}],
@@ -241,7 +238,6 @@ class ContractDao:
     def update(self, key, value, contract):
         with sentry_sdk.start_transaction(op="task", name="Update contract"):
             if value:
-                # breakpoint()
                 session.execute(
                     update(Contract),
                     [{"id": contract.id, key: value}],

@@ -1,12 +1,13 @@
 from epic_events.view import view
 from epic_events.data.dao import EmployeeDao, EventDao, ContractDao, ClientDao
+from epic_events.data.conf import key
 
 from epic_events.controller.permissions import (
     write_netrc,
     ob_for_main_menu,
     ob_for_actions_menu,
-    get_user_id,
     ob_field_for_update,
+    get_user_id
 )
 
 from argon2 import PasswordHasher, exceptions
@@ -21,35 +22,31 @@ from dotenv import load_dotenv
 load_dotenv()
 
 netrc_host = os.getenv("HOST")
-login_view = view.LoginView()
-menu_view = view.MenuView()
-employee_dao = EmployeeDao()
-client_dao = ClientDao()
-event_dao = EventDao()
-contract_dao = ContractDao()
+
+
 
 
 class LoginController:
     def __init__(self):
         self.menu_controller = MenuController()
+        self.login_view = view.LoginView()
+        self.employee_dao = EmployeeDao()
 
     def authentification(self):
         """
         verify email and password then create a token with RS256 - asymmetric algorithm
         """
-        (email, password) = login_view.prompt_login_details()
+        (email, password) = self.login_view.prompt_login_details()
         try:
-            employee = employee_dao.get_by_email(email)
+            employee = self.employee_dao.get_by_email(email)
         except IndexError:
             print("\nVotre addresse email n'est pas correct.")
             exit()
         try:
             h = PasswordHasher()
-            # breakpoint()
             h.verify(employee.password, password)
-            private_key = os.getenv("PRIVATE_KEY")
-            serialize_key = serialization.load_pem_private_key(
-                private_key.encode(), password=None
+            serialize_key = serialization.load_ssh_private_key(
+                key.encode(), password=None
             )
 
             payload = {
@@ -58,16 +55,19 @@ class LoginController:
                 "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
             }
             token = jwt.encode(payload=payload, key=serialize_key, algorithm="RS256")
-            # breakpoint()
             write_netrc(netrc_host, email, token)
-            login_view.successful_login()
+            self.login_view.successful_login()
         except exceptions.VerifyMismatchError:
             print("Votre mot de passe n'est pas correct.")
 
 
 class MenuController:
     def __init__(self):
-        self.employee_id = get_user_id()
+        self.menu_view = view.MenuView()
+        self.employee_dao = EmployeeDao()
+        self.client_dao = ClientDao()
+        self.event_dao = EventDao()
+        self.contract_dao = ContractDao()
 
     @ob_for_main_menu
     def main_menu(self, objects: list = None):
@@ -75,16 +75,20 @@ class MenuController:
         First menu to select permission categorie
         """
         while True:
-            choice = menu_view.main_menu(objects)
+            choice = self.menu_view.main_menu(objects)
             if choice == "exit":
                 exit()
             else:
                 self.crud_menu(ob_name=choice)
 
+    def logout(self):
+        write_netrc(netrc_host, "None", "None")
+        print("Vous êtes déconnecté")
+
     def crud_menu(self, ob_name):
         actions = ob_for_actions_menu(ob_name)
         while True:
-            choice = menu_view.actions_menu(ob_name, actions)
+            choice = self.menu_view.actions_menu(ob_name, actions)
             if choice == "exit":
                 break
             elif choice == "read_all":
@@ -117,61 +121,62 @@ class MenuController:
                 click.echo("Not allowed.")
 
     def get_ob_by_id(self, ob_name, action):
-        obj_id = menu_view.prompt_for_object_id(ob_name, action, self.employee_id)
+        employee_id = get_user_id()
+        obj_id = self.menu_view.prompt_for_object_id(ob_name, action, employee_id)
         while True:
             if obj_id == "exit":
                 break
             elif ob_name == "client":
-                obj = client_dao.get_by_id(obj_id)
+                obj = self.client_dao.get_by_id(obj_id)
             elif ob_name == "contract":
-                obj = contract_dao.get_by_id(obj_id)
+                obj = self.contract_dao.get_by_id(obj_id)
             elif ob_name == "event":
-                obj = event_dao.get_by_id(obj_id)
+                obj = self.event_dao.get_by_id(obj_id)
             elif ob_name == "employee":
-                obj = employee_dao.get_by_id(obj_id)
+                obj = self.employee_dao.get_by_id(obj_id)
             return obj
 
     def read_all(self, ob_name):
         obs_list = []
         if ob_name == "employee":
-            obs_list = employee_dao.get_all()
+            obs_list = self.employee_dao.get_all()
         elif ob_name == "client":
-            obs_list = client_dao.get_all()
+            obs_list = self.client_dao.get_all()
         elif ob_name == "contract":
-            obs_list = contract_dao.get_all()
+            obs_list = self.contract_dao.get_all()
         elif ob_name == "event":
-            obs_list = event_dao.get_all()
+            obs_list = self.event_dao.get_all()
         else:
             click.echo("Mauvaise choix, veuillez choisir une option correcte")
-        menu_view.show_list(ob_name, obs_list)
+        self.menu_view.show_list(ob_name, obs_list)
 
     def read_one(self, ob_name, ob):
-        breakpoint
-        menu_view.show_details(ob_name, ob)
+        self.menu_view.show_details(ob_name, ob)
 
     def create_one(self, ob_name):
-        datas = menu_view.propmt_for_data_creation(ob_name, self.employee_id)
+        employee_id = get_user_id()
+        datas = self.menu_view.propmt_for_data_creation(ob_name, employee_id)
         if ob_name == "employee":
             p = PasswordHasher()
             datas["password"] = p.hash(datas["password"])
-            employee_dao.add(datas)
+            self.employee_dao.add(datas)
         elif ob_name == "client":
-            datas["commercial_id"] = self.employee_id
-            client_dao.add(datas)
+            datas["commercial_id"] = employee_id
+            self.client_dao.add(datas)
         elif ob_name == "contract":
-            client = client_dao.get_by_id(datas["client_id"])
+            client = self.client_dao.get_by_id(datas["client_id"])
             datas["commercial_id"] = client.commercial_id
-            contract_dao.add(datas)
+            self.contract_dao.add(datas)
         elif ob_name == "event":
             if datas["support_id"] == "":
                 datas["support_id"] = None
-            contract = contract_dao.get_by_id(datas["contract_id"])
+            contract = self.contract_dao.get_by_id(datas["contract_id"])
             datas["client_id"] = contract.client_id
-            event_dao.add(datas)
+            self.event_dao.add(datas)
         else:
             click.echo("Mauvaise choix, veuillez choisir une option correcte")
 
-        menu_view.action_confirmation(
+        self.menu_view.action_confirmation(
             "create",
             ob_name,
         )
@@ -180,15 +185,16 @@ class MenuController:
         obj = self.get_ob_by_id(ob_name, "delete")
         self.read_one(ob_name, obj)
         if ob_name == "employee":
-            employee_dao.delete(obj)
+            self.employee_dao.delete(obj)
         else:
             click.echo("Pas de permission pour supprimé")
-        menu_view.action_confirmation("delete", ob_name)
+        self.menu_view.action_confirmation("delete", ob_name)
 
     def update(self, ob_name, obj):
+        employee_id = get_user_id()
         self.read_one(ob_name, obj)
         ob_fields = ob_field_for_update(ob_name, obj)
-        field, value = menu_view.prompt_for_update(obj, ob_fields, self.employee_id)
+        field, value = self.menu_view.prompt_for_update(obj, ob_fields, employee_id)
         while True:
             if "exit" in [field, value]:
                 break
@@ -198,32 +204,33 @@ class MenuController:
 
     def update_action(self, ob_name, obj, field, value):
         if ob_name == "employee":
-            employee_dao.update(field, value, obj)
+            self.employee_dao.update(field, value, obj)
         if ob_name == "client":
-            client_dao.update(field, value, obj)
+            self.client_dao.update(field, value, obj)
         if ob_name == "contract":
-            contract_dao.update(field, value, obj)
+            self.contract_dao.update(field, value, obj)
         if ob_name == "event":
-            event_dao.update(field, value, obj)
-        menu_view.action_confirmation("update", ob_name)
+            self.event_dao.update(field, value, obj)
+        self.menu_view.action_confirmation("update", ob_name)
 
     def read_no_support(self, ob_name):
-        events = event_dao.get_no_support()
-        menu_view.show_list(ob_name, events)
+        events = self.event_dao.get_no_support()
+        self.menu_view.show_list(ob_name, events)
 
     def read_no_signature(self, ob_name):
-        contracts = contract_dao.get_unsigned_contracts()
-        menu_view.show_list(ob_name, contracts)
+        contracts = self.contract_dao.get_unsigned_contracts()
+        self.menu_view.show_list(ob_name, contracts)
 
     def read_due_amount(self, ob_name):
-        contracts = contract_dao.get_due_amount_higher_than_zero()
-        menu_view.show_list(ob_name, contracts)
+        contracts = self.contract_dao.get_due_amount_higher_than_zero()
+        self.menu_view.show_list(ob_name, contracts)
 
     def read_owned(self, ob_name):
+        employee_id = get_user_id()
         if ob_name == "contracts":
-            ob_list = contract_dao.get_by_commercial_id(self.employee_id)
+            ob_list = self.contract_dao.get_by_commercial_id(employee_id)
         elif ob_name == "event":
-            ob_list = event_dao.get_by_support_id(self.employee_id)
+            ob_list = self.event_dao.get_by_support_id(employee_id)
         elif ob_name == "clent":
-            ob_list = client_dao.get_by_commercial_id(self.employee_id)
-        menu_view.show_list(ob_name, ob_list)
+            ob_list = self.client_dao.get_by_commercial_id(employee_id)
+        self.menu_view.show_list(ob_name, ob_list)
