@@ -403,7 +403,6 @@ class MenuView:
             default=None,
         ).execute()
         modify_field, new_value = self.field_conditions(modify_field, employee_id)
-
         return modify_field, new_value
 
     def check_date(self, key, format):
@@ -423,11 +422,11 @@ class MenuView:
 
     def action_confirmation(self, action, ob_name):
         if action == "create":
-            text = Text(f"Nouveau {ob_menu[ob_name]} a été crée:")
+            text = Text(f"Nouveau {ob_menu[ob_name]} a été crée.")
         if action == "update":
-            text = Text(f"Le {ob_menu[ob_name]} a été modifié:")
+            text = Text(f"Le {ob_menu[ob_name]} a été modifié.")
         if action == "delete":
-            text = Text(f"Le {ob_menu[ob_name]} a été supprimé")
+            text = Text(f"Le {ob_menu[ob_name]} a été supprimé.")
 
         text.stylize("green")
         console.print(text)

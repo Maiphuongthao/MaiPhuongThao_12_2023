@@ -1,13 +1,14 @@
 from epic_events.view import view
 from epic_events.data.dao import EmployeeDao, EventDao, ContractDao, ClientDao
 from epic_events.data.conf import key
+from epic_events import errors
 
 from epic_events.controller.permissions import (
     write_netrc,
     ob_for_main_menu,
     ob_for_actions_menu,
     ob_field_for_update,
-    get_user_id
+    get_user_id,
 )
 
 from argon2 import PasswordHasher, exceptions
@@ -24,8 +25,6 @@ load_dotenv()
 netrc_host = os.getenv("HOST")
 
 
-
-
 class LoginController:
     def __init__(self):
         self.menu_controller = MenuController()
@@ -39,26 +38,27 @@ class LoginController:
         (email, password) = self.login_view.prompt_login_details()
         try:
             employee = self.employee_dao.get_by_email(email)
-        except IndexError:
+            try:
+                h = PasswordHasher()
+                h.verify(employee.password, password)
+                serialize_key = serialization.load_ssh_private_key(
+                    key.encode(), password=None
+                )
+
+                payload = {
+                    "email": email,
+                    "departement_id": employee.department_id,
+                    "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
+                }
+                token = jwt.encode(payload=payload, key=serialize_key, algorithm="RS256")
+                write_netrc(netrc_host, email, token)
+                self.login_view.successful_login()
+            except exceptions.VerifyMismatchError:
+                print("Votre mot de passe n'est pas correct.")
+        except errors.InvalidEmailError:
             print("\nVotre addresse email n'est pas correct.")
             exit()
-        try:
-            h = PasswordHasher()
-            h.verify(employee.password, password)
-            serialize_key = serialization.load_ssh_private_key(
-                key.encode(), password=None
-            )
 
-            payload = {
-                "email": email,
-                "departement_id": employee.department_id,
-                "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
-            }
-            token = jwt.encode(payload=payload, key=serialize_key, algorithm="RS256")
-            write_netrc(netrc_host, email, token)
-            self.login_view.successful_login()
-        except exceptions.VerifyMismatchError:
-            print("Votre mot de passe n'est pas correct.")
 
 
 class MenuController:
@@ -85,7 +85,7 @@ class MenuController:
         write_netrc(netrc_host, "None", "None")
         print("Vous êtes déconnecté")
 
-    def crud_menu(self, ob_name):
+    def crud_menu(self, ob_name: str):
         actions = ob_for_actions_menu(ob_name)
         while True:
             choice = self.menu_view.actions_menu(ob_name, actions)
@@ -154,6 +154,7 @@ class MenuController:
         self.menu_view.show_details(ob_name, ob)
 
     def create_one(self, ob_name):
+        # breakpoint()
         employee_id = get_user_id()
         datas = self.menu_view.propmt_for_data_creation(ob_name, employee_id)
         if ob_name == "employee":

@@ -9,6 +9,7 @@ from epic_events.models.models import (
     Department,
 )
 import sentry_sdk
+from epic_events import errors
 
 
 class EmployeeDao:
@@ -22,6 +23,8 @@ class EmployeeDao:
 
     def get_by_email(self, email: str):
         employee = session.query(Employee).filter(Employee.email == email).first()
+        if employee is None:
+            raise errors.InvalidEmailError
         return employee
 
     def get_columns_key(self):
@@ -35,6 +38,7 @@ class EmployeeDao:
                 password=datas["password"],
                 department_id=datas["department_id"],
             )
+            
             session.add(employee)
             session.commit()
 

@@ -34,11 +34,7 @@ session = Session()
 
 Base = declarative_base()
 
-file = os.path.dirname(
-    os.path.dirname(os.path.dirname(
-        os.path.abspath(__file__))
-    )
-)
+file = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 path = ".ssh/secret.txt"
 pub_path = ".ssh/secret.txt.pub"

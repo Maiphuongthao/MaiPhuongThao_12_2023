@@ -128,13 +128,12 @@ def is_authenticated(func):
     def wrapper(*args, **kwargs):
         try:
             user, token = read_credentials(netrc_host)
-            #breakpoint()
             if user == "None" or token == "None":
-                click.echo("Logged out , veuillez reconnecté!")     
+                click.echo("Logged out , veuillez reconnecté!")
             else:
                 get_payload()
                 if func is not None:
-                    func() 
+                    func()
         except ExpiredSignatureError:
             click.echo("Connection expirée, connectez vous à nouveau.")
 
@@ -147,11 +146,16 @@ def get_token():
 
 
 def get_payload():
-    breakpoint()
     token = get_token()
     key = serialization.load_ssh_public_key(pub_key.encode())
-    header_data =jwt.get_unverified_header(token)
-    return jwt.decode(token, key, algorithms=[header_data['alg'], ])
+    header_data = jwt.get_unverified_header(token)
+    return jwt.decode(
+        token,
+        key,
+        algorithms=[
+            header_data["alg"],
+        ],
+    )
 
 
 def get_department():

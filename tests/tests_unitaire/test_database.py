@@ -2,7 +2,6 @@ import pytest
 from epic_events.models.models import Department, Employee
 
 
-
 class TestDatabase:
     def test_database_connection(self, connection):
         # test connect to database
@@ -14,7 +13,7 @@ class TestDatabase:
     def test_gestion_in_db(self, connection, dummy_employee_gestion):
         assert dummy_employee_gestion in connection.query(Employee).all()
         assert dummy_employee_gestion.department.name == "Gestion"
-    
+
     def test_commercial_in_db(self, connection, dummy_employee_commercial):
         assert dummy_employee_commercial in connection.query(Employee).all()
         assert dummy_employee_commercial.department.name == "Commercial"
@@ -22,5 +21,3 @@ class TestDatabase:
     def test_support_in_db(self, connection, dummy_employee_support):
         assert dummy_employee_support in connection.query(Employee).all()
         assert dummy_employee_support.department.name == "Support"
-    
-    
