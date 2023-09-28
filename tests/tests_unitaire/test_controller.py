@@ -25,7 +25,7 @@ def test_incorrect_email_auth(monkeypatch, dummy_employee_gestion, connection):
     result = runner.invoke(login)
     assert result.exit_code == 0
     assert pytest.raises(errors.InvalidEmailError)
-
+    
 
 def test_login_auth(monkeypatch, dummy_employee_gestion, connection):
     runner = CliRunner()
@@ -42,24 +42,26 @@ def test_login_auth(monkeypatch, dummy_employee_gestion, connection):
     assert result.exit_code == 0
     assert "Vous êtes connectés." in result.output.strip()
 
-
 def test_start(monkeypatch, connection):
     runner = CliRunner()
     response = "exit"
 
     monkeypatch.setattr(
         "epic_events.view.view.MenuView.main_menu",
-        lambda self, prompt: response,
+        lambda self,prompt: response,
     )
     # monkeypatch.setattr(
-    # "epic_events.controller.login_controller.MenuController.crud_menu",
-    # lambda self, ob_name: setattr(self, )
+        # "epic_events.controller.login_controller.MenuController.crud_menu",
+        # lambda self, ob_name: setattr(self, )
     # )
     result = runner.invoke(start)
     assert result.exit_code == 0
-
 
 def test_logout_auth():
     runner = CliRunner()
     result = runner.invoke(logout)
     assert result.exit_code == 0
+
+
+
+

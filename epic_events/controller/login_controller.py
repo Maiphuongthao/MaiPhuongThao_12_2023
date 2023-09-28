@@ -50,7 +50,9 @@ class LoginController:
                     "departement_id": employee.department_id,
                     "exp": datetime.now(tz=timezone.utc) + timedelta(hours=24),
                 }
-                token = jwt.encode(payload=payload, key=serialize_key, algorithm="RS256")
+                token = jwt.encode(
+                    payload=payload, key=serialize_key, algorithm="RS256"
+                )
                 write_netrc(netrc_host, email, token)
                 self.login_view.successful_login()
             except exceptions.VerifyMismatchError:
@@ -58,7 +60,6 @@ class LoginController:
         except errors.InvalidEmailError:
             print("\nVotre addresse email n'est pas correct.")
             exit()
-
 
 
 class MenuController:
@@ -77,6 +78,7 @@ class MenuController:
         while True:
             choice = self.menu_view.main_menu(objects)
             if choice == "exit":
+                
                 exit()
             else:
                 self.crud_menu(ob_name=choice)
@@ -147,14 +149,13 @@ class MenuController:
         elif ob_name == "event":
             obs_list = self.event_dao.get_all()
         else:
-            click.echo("Mauvaise choix, veuillez choisir une option correcte")
+            click.echo("Mauvais choix, veuillez choisir une option correcte")
         self.menu_view.show_list(ob_name, obs_list)
 
     def read_one(self, ob_name, ob):
         self.menu_view.show_details(ob_name, ob)
 
     def create_one(self, ob_name):
-        # breakpoint()
         employee_id = get_user_id()
         datas = self.menu_view.propmt_for_data_creation(ob_name, employee_id)
         if ob_name == "employee":

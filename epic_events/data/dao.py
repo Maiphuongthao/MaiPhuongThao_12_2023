@@ -38,7 +38,7 @@ class EmployeeDao:
                 password=datas["password"],
                 department_id=datas["department_id"],
             )
-            
+
             session.add(employee)
             session.commit()
 

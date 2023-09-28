@@ -1,9 +1,5 @@
 from epic_events.models import models
 from epic_events.controller.login_controller import MenuController
-from epic_events.controller import permissions
-import pytest
-from epic_events import errors
-from unittest.mock import patch
 
 
 def test_read(connection, dummy_employee_gestion, monkeypatch):
@@ -110,18 +106,19 @@ def test_create_employee(monkeypatch, connection, capsys, dummy_employee_gestion
         "epic_events.data.dao.session.add",
         lambda x: connection,
     )
-    
+
     mc.create_one("employee")
     assert "Nouveau employée a été crée." in capsys.readouterr().out
+
 
 def test_update_employee(monkeypatch, connection, capsys, dummy_employee_gestion):
     mc = MenuController()
 
-    value = ["name","gestion_1"]
+    value = ["name", "gestion_1"]
     fields = ["name", "email", "password", "department_id"]
     monkeypatch.setattr(
         "epic_events.view.view.MenuView.prompt_for_update",
-        lambda x, y,z, prompt: value,
+        lambda x, y, z, prompt: value,
     )
     monkeypatch.setattr(
         "epic_events.controller.login_controller.get_user_id",
@@ -135,7 +132,7 @@ def test_update_employee(monkeypatch, connection, capsys, dummy_employee_gestion
         "epic_events.data.dao.session.execute",
         lambda x, id: connection,
     )
-    
+
     mc.update("employee", dummy_employee_gestion)
     assert "employée a été modifié" in capsys.readouterr().out
 
