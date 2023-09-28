@@ -33,7 +33,8 @@ class LoginController:
 
     def authentification(self):
         """
-        verify email and password then create a token with RS256 - asymmetric algorithm
+        verify email and password then create a token with RS256
+        - asymmetric algorithm
         """
         (email, password) = self.login_view.prompt_login_details()
         try:
@@ -78,7 +79,6 @@ class MenuController:
         while True:
             choice = self.menu_view.main_menu(objects)
             if choice == "exit":
-                
                 exit()
             else:
                 self.crud_menu(ob_name=choice)

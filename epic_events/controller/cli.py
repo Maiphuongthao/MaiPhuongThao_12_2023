@@ -9,12 +9,14 @@ def cli():
     pass
 
 
+# commande to activate login authentification
 @cli.command("login")
 def login():
     login = LoginController()
     login.authentification()
 
 
+# commande to start manu
 @cli.command("start")
 @is_authenticated
 def start():
@@ -22,6 +24,7 @@ def start():
     menu.main_menu()
 
 
+# commande to logout with delete none to netrc file
 @cli.command("logout")
 @is_authenticated
 def logout():
@@ -29,6 +32,7 @@ def logout():
     menu.logout()
 
 
+# ad 1st info to database to test
 def execute_test_sql(file):
     f = open(file, "r")
     sql_file = f.read()

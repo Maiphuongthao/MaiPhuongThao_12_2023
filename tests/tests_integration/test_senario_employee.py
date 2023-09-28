@@ -10,7 +10,7 @@ class TestIntergation:
         self, monkeypatch, dummy_employee_gestion, connection
     ):
         """
-        Create senario login/start/logout with clie and create, 
+        Create senario login/start/logout with clie and create,
         update and delete an employee
         """
         runner = CliRunner()
@@ -87,28 +87,26 @@ class TestIntergation:
         )
         monkeypatch.setattr(
             "epic_events.controller.login_controller.get_user_id",
-            lambda : dummy_employee_gestion.id,
+            lambda: dummy_employee_gestion.id,
         )
         monkeypatch.setattr(
             "epic_events.data.dao.session.add",
             lambda datas: connection,
         )
-        
+
         # exit
-                
+
         monkeypatch.setattr(
             "epic_events.view.view.MenuView.actions_menu",
             lambda self, ob_name, prompt: "exit",
         )
         monkeypatch.setattr(
             "epic_events.view.view.MenuView.main_menu",
-            lambda self,prompt: "exit",
+            lambda self, prompt: "exit",
         )
 
         result = runner.invoke(start)
         assert result.exit_code == 0
 
-        
         result = runner.invoke(logout)
         assert result.exit_code == 0
-        
