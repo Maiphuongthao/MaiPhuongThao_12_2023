@@ -229,10 +229,10 @@ class MenuController:
 
     def read_owned(self, ob_name):
         employee_id = get_user_id()
-        if ob_name == "contracts":
+        if ob_name == "contract":
             ob_list = self.contract_dao.get_by_commercial_id(employee_id)
         elif ob_name == "event":
             ob_list = self.event_dao.get_by_support_id(employee_id)
-        elif ob_name == "clent":
+        elif ob_name == "client":
             ob_list = self.client_dao.get_by_commercial_id(employee_id)
         self.menu_view.show_list(ob_name, ob_list)

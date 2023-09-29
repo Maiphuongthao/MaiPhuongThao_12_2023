@@ -1,7 +1,7 @@
 import pytest
 import os
 from sqlalchemy import create_engine, URL, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from epic_events.models import models
 from dotenv import load_dotenv
 from argon2 import PasswordHasher
@@ -49,7 +49,7 @@ def connection(request):
     )
     engine = create_engine(test_url)
 
-    Session = sessionmaker(bind=engine)
+    Session = scoped_session(sessionmaker(bind=engine))
     connection = Session()
 
     models.Base.metadata.create_all(engine)

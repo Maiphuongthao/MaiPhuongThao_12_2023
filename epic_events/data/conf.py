@@ -5,7 +5,7 @@ from sentry_sdk.scrubber import EventScrubber
 from sentry_sdk.integrations.logging import LoggingIntegration
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -28,8 +28,7 @@ url = URL.create(
 # SQLAlchemy session
 engine = create_engine(url)
 
-session_factory = sessionmaker(bind=engine)
-Session = scoped_session(session_factory)
+Session = sessionmaker(bind=engine)
 session = Session()
 
 Base = declarative_base()

@@ -15,7 +15,7 @@ from epic_events.data.dao import (
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
-from InquirerPy.validator import PasswordValidator, EmptyInputValidator, NumberValidator
+from InquirerPy.validator import PasswordValidator, EmptyInputValidator
 
 
 ob_menu = {
@@ -75,7 +75,7 @@ class LoginView:
 
     def successful_login(self):
         text = Text("Vous êtes connectés.")
-        text.stylize("bole green")
+        # text.stylize("bole green")
         console.print(text)
 
 
@@ -167,8 +167,8 @@ class MenuView:
         employee = employee_dao.get_by_id(employee_id)
         if ob_name == "employee":
             choices = [
-                Choice(value=employee.id, name=f"{employee.id} - {employee.name}")
-                for employee in employee_dao.get_all()
+                Choice(value=employe.id, name=f"{employe.id} - {employe.name}")
+                for employe in employee_dao.get_all()
             ]
         elif ob_name == "client":
             choices = [

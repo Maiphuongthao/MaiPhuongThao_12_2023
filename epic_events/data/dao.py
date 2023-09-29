@@ -138,23 +138,11 @@ class EventDao:
             session.commit()
 
     def get_by_support_id(self, support_id):
-        events = (
-            session.execute(select(Event).where(Event.support_id == support_id))
-            .scalars()
-            .all()
-        )
+        events = session.query(Event).filter(Event.support_id == support_id).all()
         return events
 
     def get_no_support(self):
-        events = (
-            session.execute(
-                select(Event).where(
-                    Event.support_id == None,
-                )
-            )
-            .scalars()
-            .all()
-        )
+        events = session.query(Event).filter(Event.support_id == None).all()
         return events
 
     @sentry_sdk.trace
@@ -204,27 +192,11 @@ class ContractDao:
         return contracts
 
     def get_due_amount_higher_than_zero(self):
-        contracts = (
-            session.execute(
-                select(Contract).where(
-                    Contract.due_amount > 0,
-                )
-            )
-            .scalars()
-            .all()
-        )
+        contracts = session.query(Contract).filter(Contract.due_amount > 0).all()
         return contracts
 
     def get_unsigned_contracts(self):
-        return (
-            session.execute(
-                select(Contract).filter_by(
-                    status="en attend",
-                )
-            )
-            .scalars()
-            .all()
-        )
+        return session.query(Contract).filter(Contract.status == "en attend").all()
 
     def get_signed_contract(self, employee_id):
         contracts = (

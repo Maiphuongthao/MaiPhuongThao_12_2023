@@ -52,7 +52,7 @@ def test_read_client_contract_event(
         lambda self, prompt: client1,
     )
     mc.read_one("client", client1)
-    assert "client id :1" in capsys.readouterr().out
+    assert "client id :2" in capsys.readouterr().out
 
     monkeypatch.setattr(
         "epic_events.controller.login_controller.MenuController.get_ob_by_id",
@@ -149,3 +149,97 @@ def test_delete(monkeypatch, connection, capsys, dummy_employee_gestion):
     )
     mc.delete("employee")
     assert "employée a été supprimé" in capsys.readouterr().out
+
+
+def test_read_no_support(monkeypatch, connection, capsys):
+    mc = MenuController()
+    liste = connection.query(models.Event).filter(models.Event.support_id == None).all()
+    monkeypatch.setattr(
+        "epic_events.data.dao.session.query",
+        lambda x, id: connection,
+    )
+    monkeypatch.setattr("epic_events.data.dao.EventDao.get_no_support", lambda _: liste)
+    mc.read_no_support("event")
+    assert "Liste des events" in capsys.readouterr().out
+
+
+def test_read_no_signature(monkeypatch, connection, capsys):
+    mc = MenuController()
+    liste = (
+        connection.query(models.Contract)
+        .filter(models.Contract.status == "en attend")
+        .all()
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.session.query",
+        lambda x, id: connection,
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.ContractDao.get_unsigned_contracts", lambda _: liste
+    )
+    mc.read_no_signature("contract")
+    assert "Liste des contracts" in capsys.readouterr().out
+
+
+def test_read_due_amount(monkeypatch, connection, capsys):
+    mc = MenuController()
+    liste = (
+        connection.query(models.Contract).filter(models.Contract.due_amount > 0).all()
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.session.query",
+        lambda x, id: connection,
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.ContractDao.get_due_amount_higher_than_zero",
+        lambda _: liste,
+    )
+    mc.read_due_amount("contract")
+    assert "Liste des contracts" in capsys.readouterr().out
+
+
+def test_read_owned(monkeypatch, dummy_employee_support, connection, capsys):
+    mc = MenuController()
+    liste = (
+        connection.query(models.Event)
+        .filter(models.Event.support_id == dummy_employee_support.id)
+        .all()
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.session.query",
+        lambda x, id: connection,
+    )
+    monkeypatch.setattr(
+        "epic_events.data.dao.EventDao.get_by_support_id",
+        lambda self, employee_id: liste,
+    )
+    monkeypatch.setattr(
+        "epic_events.controller.login_controller.get_user_id",
+        lambda: dummy_employee_support.id,
+    )
+    mc.read_owned("event")
+    assert "Liste des events" in capsys.readouterr().out
+
+
+def test_get_ob_by_id(monkeypatch, dummy_employee_support, connection):
+    mc = MenuController()
+    monkeypatch.setattr(
+        "epic_events.controller.login_controller.get_user_id",
+        lambda: dummy_employee_support.id,
+    )
+    ob_name = "employee"
+    action = "read"
+    session = connection.query(models.Employee)
+    monkeypatch.setattr("epic_events.data.dao.session.query", lambda Employee: session)
+    monkeypatch.setattr(
+        "epic_events.data.dao.EmployeeDao.get_by_id",
+        lambda self, id: dummy_employee_support.id,
+    )
+    monkeypatch.setattr(
+        "epic_events.view.view.MenuView.prompt_for_object_id",
+        lambda self, ob, act, id: dummy_employee_support.id,
+    )
+
+    result = mc.get_ob_by_id(ob_name, action)
+
+    assert result == 3
