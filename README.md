@@ -1,4 +1,6 @@
-#Epic Events OC- P12
+# Epic Events OC- P12
+
+
 
 ## Info
 
@@ -17,7 +19,9 @@ There are permissions related to each model which define the action they can tak
 - Delete
 
 
+
 ## Installation
+
 
 1. Initialize the project
 
@@ -47,16 +51,19 @@ MacOS et Linux :
 
   ```
 
+
 2. Database
 
    - Install MySQL following their instrucion [Here]([https://www.postman.com/](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
    - ```mysql -u root -p ```then create epic_events database ```CREATE epic_events```
+
 
 3. Secret information
 
    - Add .ssh folder ```mkdir .ssh``` then add secret file to the folder ```cd .ssh``` ```touch secret.txt```
    - In the commande line write ```ssh-keygen -t rsa```to generate rsa pair key then go back to main directory```cd ...```
    - In main directory create .env file ```touch .env```. Add all lines from .env-example to .env file. Please change the information following the note of each line.
+
 
 
 ## Launch the app
