@@ -55,7 +55,7 @@ MacOS et Linux :
 2. Database
 
    - Install MySQL following their instrucion [Here](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
-   - ```mysql -u root -p ```then create epic_events database ```CREATE epic_events```
+   - ```mysql -u root -p ```then create epic_events database ```CREATE DATABASE epic_events```
 
 
 3. Secret information
