@@ -28,7 +28,7 @@ There are permissions related to each model which define the action they can tak
 Windows :
 
    ```
-    git clone https://github.com/Maiphuongthao/MaiPhuongThao_10_062023.git
+    git clone https://github.com/Maiphuongthao/MaiPhuongThao_12_2023.git
 
     cd MaiPhuongThao_10_062023
     python -m venv env 
@@ -41,7 +41,7 @@ Windows :
 MacOS et Linux :
 
   ```
-    git clone https://github.com/Maiphuongthao/MaiPhuongThao_10_062023.git
+    git clone https://github.com/Maiphuongthao/MaiPhuongThao_12_2023.git
 
     cd MaiPhuongThao_10_062023
     python3 -m venv env 
@@ -54,7 +54,7 @@ MacOS et Linux :
 
 2. Database
 
-   - Install MySQL following their instrucion [Here]([https://www.postman.com/](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
+   - Install MySQL following their instrucion [Here](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
    - ```mysql -u root -p ```then create epic_events database ```CREATE epic_events```
 
 
