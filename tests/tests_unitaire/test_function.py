@@ -1,8 +1,8 @@
-from epic_events.models import models
 from epic_events.controller.login_controller import MenuController
+from epic_events.models import models
 
 
-def test_read(connection, dummy_employee_gestion, monkeypatch):
+def test_read(dummy_employee_gestion, monkeypatch):
     mc = MenuController()
     monkeypatch.setattr(
         "epic_events.controller.login_controller.MenuController.get_ob_by_id",
@@ -153,7 +153,7 @@ def test_delete(monkeypatch, connection, capsys, dummy_employee_gestion):
 
 def test_read_no_support(monkeypatch, connection, capsys):
     mc = MenuController()
-    liste = connection.query(models.Event).filter(models.Event.support_id == None).all()
+    liste = connection.query(models.Event).filter(models.Event.support_id is None).all()
     monkeypatch.setattr(
         "epic_events.data.dao.session.query",
         lambda x, id: connection,

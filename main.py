@@ -1,8 +1,10 @@
+import os
+
+import click
+
+from epic_events.controller import cli
 from epic_events.data import conf
 from epic_events.data.dao import DepartmentDao
-from epic_events.controller import cli
-import click
-import os
 
 path_file = os.path.dirname(__file__)
 test_sql_path = "tests/test_data.sql"

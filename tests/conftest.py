@@ -1,11 +1,12 @@
-import pytest
 import os
-from sqlalchemy import create_engine, URL, text
-from sqlalchemy.orm import sessionmaker, scoped_session
-from epic_events.models import models
-from dotenv import load_dotenv
-from argon2 import PasswordHasher
 
+import pytest
+from argon2 import PasswordHasher
+from dotenv import load_dotenv
+from sqlalchemy import URL, create_engine, text
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from epic_events.models import models
 
 load_dotenv()
 
@@ -19,6 +20,18 @@ db_type = os.getenv("DB_TYPE")
 path_file = os.path.dirname(__file__)
 test_sql_path = "permission.sql"
 data_path = os.path.join(path_file, test_sql_path)
+
+
+def test_engine():
+    test_url = URL.create(
+        drivername=db_type,
+        username=db_user,
+        password=db_password,
+        host=db_host,
+        database=database_name,
+    )
+    engine = create_engine(test_url)
+    return engine
 
 
 # define fixture that will setup and teardown the database, define database connection
@@ -40,14 +53,7 @@ def connection(request):
     # to the test database we just created. This will be the
     # connection used by the test suite run.
 
-    test_url = URL.create(
-        drivername=db_type,
-        username=db_user,
-        password=db_password,
-        host=db_host,
-        database=database_name,
-    )
-    engine = create_engine(test_url)
+    engine = test_engine()
 
     Session = scoped_session(sessionmaker(bind=engine))
     connection = Session()
@@ -61,14 +67,6 @@ def connection(request):
         connection.close()
 
     request.addfinalizer(teardown)
-
-
-@pytest.fixture(scope="session", autouse=True)
-def dummy_department_gestion(connection):
-    department = models.Department(name="Gestion")
-    connection.add(department)
-    connection.commit()
-    return department
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -104,7 +102,7 @@ def dummy_permissions(connection):
     for command in commands:
         try:
             if command.strip() != "":
-                connection.execute(command)
+                connection.execute(text(command))
         except IOError as msg:
             print(f"Command skipped: {msg}")
     connection.commit()

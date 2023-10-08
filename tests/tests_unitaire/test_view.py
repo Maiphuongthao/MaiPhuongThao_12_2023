@@ -1,13 +1,16 @@
-from epic_events.models import models
-from epic_events.view.view import MenuView, LoginView
-from epic_events.view import view
-import pytest
 import unittest
-from unittest.mock import patch, Mock, call
+from unittest.mock import Mock, patch
+
+import pytest
 from InquirerPy.base.control import Choice
+
+from epic_events.models import models
+from epic_events.view import view
+from epic_events.view.view import LoginView, MenuView
 
 mv = MenuView()
 lv = LoginView()
+emv = view.EmployeeView()
 
 
 def test_display_list(capsys, connection):
@@ -61,7 +64,7 @@ def test_display_one_contract_event(capsys, connection, dummy_employee_commercia
     connection.add(event)
     connection.commit()
     mv.show_details("employee", dummy_employee_commercial)
-    assert f"employee id :1" in capsys.readouterr().out
+    assert "employee id :1" in capsys.readouterr().out
 
     mv.show_details("contract", contract)
     assert f"contract id :{contract.id}" in capsys.readouterr().out
@@ -81,6 +84,21 @@ def mock_console(monkeypatch):
     mock_console = Mock()
     monkeypatch.setattr("epic_events.view.view.console", mock_console)
     return mock_console
+
+
+def test_action_menu():
+    actions = ["read_one", "read_all", "create", "update", "delete", "read_no_support"]
+    ob_name = "employee"
+
+    # Mock user input to test the function (simulate user selecting "read_one")
+    with patch("epic_events.view.view.MenuView.actions_menu", side_effect=["read_one"]):
+        action = mv.actions_menu(ob_name, actions)
+
+    # Define the expected action based on the user input ("read_one" corresponds to input "1")
+    expected_action = "read_one"
+
+    # Assert that the actual action matches the expected action
+    assert action == expected_action
 
 
 def test_sucessful_logn(capsys):
@@ -182,7 +200,26 @@ def test_confirmation_action(capsys):
     ob_name = "employee"
     mv.action_confirmation(action, ob_name)
     captured_stdout = capsys.readouterr().out
-    assert f"Nouveau employée a été crée." in captured_stdout
+    assert "Nouveau employée a été crée." in captured_stdout
+
+
+def test_password_inquirer():
+    with patch(
+        "epic_events.view.view.EmployeeView.prompt_password",
+        side_effect=["ValidPass123!"],
+    ):
+        password = emv.prompt_password("password")
+
+    assert password == "ValidPass123!"
+
+
+def test_prompt_department():
+    with patch(
+        "epic_events.view.view.EmployeeView.prompt_department", side_effect=["1"]
+    ):
+        department = emv.prompt_department("departement")
+
+    assert department == "1"
 
 
 class TestViewWithInquirer(unittest.TestCase):

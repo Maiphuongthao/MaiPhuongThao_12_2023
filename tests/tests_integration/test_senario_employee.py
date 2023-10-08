@@ -1,8 +1,7 @@
-from click.testing import CliRunner
-from epic_events.controller.cli import login, logout, start
-from epic_events.controller.login_controller import MenuController
 import pytest
+from click.testing import CliRunner
 from epic_events import errors
+from epic_events.controller.cli import login, logout, start
 
 
 class TestIntergation:
@@ -14,7 +13,6 @@ class TestIntergation:
         update and delete an employee
         """
         runner = CliRunner()
-        mc = MenuController()
 
         responses = ("test@lol.fr", "Password12@")
 

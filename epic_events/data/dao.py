@@ -1,15 +1,16 @@
-from epic_events.data.conf import session
-from sqlalchemy import select, update
-from epic_events.models.models import (
-    Employee,
-    Client,
-    Event,
-    Contract,
-    Permission,
-    Department,
-)
 import sentry_sdk
+from sqlalchemy import select, update
+
 from epic_events import errors
+from epic_events.data.conf import session
+from epic_events.models.models import (
+    Client,
+    Contract,
+    Department,
+    Employee,
+    Event,
+    Permission,
+)
 
 
 class EmployeeDao:
@@ -142,7 +143,7 @@ class EventDao:
         return events
 
     def get_no_support(self):
-        events = session.query(Event).filter(Event.support_id == None).all()
+        events = session.query(Event).filter(Event.support_id is None).all()
         return events
 
     @sentry_sdk.trace

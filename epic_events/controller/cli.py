@@ -1,4 +1,5 @@
 import click
+
 from epic_events.controller.login_controller import LoginController, MenuController
 from epic_events.controller.permissions import is_authenticated
 from epic_events.data import conf

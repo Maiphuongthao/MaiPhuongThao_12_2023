@@ -1,24 +1,22 @@
-from epic_events.view import view
-from epic_events.data.dao import EmployeeDao, EventDao, ContractDao, ClientDao
-from epic_events.data.conf import key
-from epic_events import errors
+import os
+from datetime import datetime, timedelta, timezone
 
-from epic_events.controller.permissions import (
-    write_netrc,
-    ob_for_main_menu,
-    ob_for_actions_menu,
-    ob_field_for_update,
-    get_user_id,
-)
-
+import jwt
 from argon2 import PasswordHasher, exceptions
 from cryptography.hazmat.primitives import serialization
-from datetime import datetime, timezone, timedelta
-import jwt
-import click
-
-import os
 from dotenv import load_dotenv
+
+from epic_events import errors
+from epic_events.controller.permissions import (
+    get_user_id,
+    ob_field_for_update,
+    ob_for_actions_menu,
+    ob_for_main_menu,
+    write_netrc,
+)
+from epic_events.data.conf import key
+from epic_events.data.dao import ClientDao, ContractDao, EmployeeDao, EventDao
+from epic_events.view import view
 
 load_dotenv()
 
@@ -119,8 +117,6 @@ class MenuController:
                 self.read_due_amount(ob_name)
             elif choice == "read_owned":
                 self.read_owned(ob_name)
-            else:
-                click.echo("Not allowed.")
 
     def get_ob_by_id(self, ob_name, action):
         employee_id = get_user_id()
@@ -148,8 +144,6 @@ class MenuController:
             obs_list = self.contract_dao.get_all()
         elif ob_name == "event":
             obs_list = self.event_dao.get_all()
-        else:
-            click.echo("Mauvais choix, veuillez choisir une option correcte")
         self.menu_view.show_list(ob_name, obs_list)
 
     def read_one(self, ob_name, ob):
@@ -175,8 +169,6 @@ class MenuController:
             contract = self.contract_dao.get_by_id(datas["contract_id"])
             datas["client_id"] = contract.client_id
             self.event_dao.add(datas)
-        else:
-            click.echo("Mauvaise choix, veuillez choisir une option correcte")
 
         self.menu_view.action_confirmation(
             "create",
@@ -188,8 +180,6 @@ class MenuController:
         self.read_one(ob_name, obj)
         if ob_name == "employee":
             self.employee_dao.delete(obj)
-        else:
-            click.echo("Pas de permission pour supprimé")
         self.menu_view.action_confirmation("delete", ob_name)
 
     def update(self, ob_name, obj):
