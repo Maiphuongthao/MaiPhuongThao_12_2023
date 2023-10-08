@@ -56,7 +56,7 @@ class Client(Base):
     events: Mapped[List["Event"]] = relationship(back_populates="client")
     contracts: Mapped[List["Contract"]] = relationship(back_populates="client")
     commercial: Mapped["Employee"] = relationship(back_populates="clients")
-    commercial_id: Mapped[int] = mapped_column(ForeignKey("employees.id"))
+    commercial_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), nullable=True)
     created_date: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -71,7 +71,7 @@ class Contract(Base):
     client: Mapped["Client"] = relationship(back_populates="contracts")
     client_id: Mapped[int] = mapped_column(ForeignKey("clients.id"))
     commercial: Mapped["Employee"] = relationship(back_populates="contracts")
-    commercial_id: Mapped[int] = mapped_column(ForeignKey("employees.id"))
+    commercial_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), nullable=True)
     total_amount: Mapped[float] = mapped_column(Float)
     due_amount: Mapped[float] = mapped_column(Float)
     status: Mapped[str] = mapped_column(String(30))
