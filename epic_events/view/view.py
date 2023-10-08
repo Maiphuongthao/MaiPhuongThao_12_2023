@@ -1,22 +1,23 @@
 import getpass
-import click
 from datetime import datetime
 from typing import Tuple
-from rich.console import Console
-from rich.table import Table
-from rich.text import Text
-from epic_events.data.dao import (
-    DepartmentDao,
-    ClientDao,
-    ContractDao,
-    EmployeeDao,
-    EventDao,
-)
+
+import click
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
-from InquirerPy.validator import PasswordValidator, EmptyInputValidator
+from InquirerPy.validator import EmptyInputValidator, PasswordValidator
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
 
+from epic_events.data.dao import (
+    ClientDao,
+    ContractDao,
+    DepartmentDao,
+    EmployeeDao,
+    EventDao,
+)
 
 ob_menu = {
     "employee": "employée",

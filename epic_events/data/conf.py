@@ -1,13 +1,13 @@
-import os
-import sentry_sdk
 import logging
-from sentry_sdk.scrubber import EventScrubber
-from sentry_sdk.integrations.logging import LoggingIntegration
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, URL
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import os
 
+import sentry_sdk
+from dotenv import load_dotenv
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.scrubber import EventScrubber
+from sqlalchemy import URL, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 

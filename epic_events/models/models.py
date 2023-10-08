@@ -1,9 +1,10 @@
 import datetime
 from typing import List
 
-from sqlalchemy import Integer, String, Float, DateTime, ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
+
 from epic_events.data.conf import Base
 
 

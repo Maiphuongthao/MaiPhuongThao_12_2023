@@ -1,6 +1,7 @@
 [flake8]
 max-line-length = 119
-
+extend-ignore = E203, E501
+extend-select = B950
 exclude=
     .gitignore,
     env/,

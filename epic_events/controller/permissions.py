@@ -1,23 +1,24 @@
 import os
-import textwrap
 import stat
-import jwt
-import click
-from jwt.exceptions import ExpiredSignatureError
-from typing import Union, Tuple
+import textwrap
+from typing import Tuple, Union
 from urllib.parse import urlparse
+
+import click
+import jwt
+from cryptography.hazmat.primitives import serialization
 from dotenv import load_dotenv
+from jwt.exceptions import ExpiredSignatureError
+
 from epic_events.data.conf import pub_key
 from epic_events.data.dao import (
-    DepartmentDao,
-    EmployeeDao,
-    PermissionDao,
     ClientDao,
     ContractDao,
+    DepartmentDao,
+    EmployeeDao,
     EventDao,
+    PermissionDao,
 )
-from cryptography.hazmat.primitives import serialization
-
 
 load_dotenv()
 
@@ -74,7 +75,7 @@ def _find_netrc_token(machine: str, raise_errors=False):
         netrc_locations = ("~/{}".format(f) for f in NETRC_FILES)
 
     try:
-        from netrc import netrc, NetrcParseError
+        from netrc import NetrcParseError, netrc
 
         netrc_path = None
 

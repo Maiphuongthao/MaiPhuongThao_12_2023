@@ -1,7 +1,14 @@
-from epic_events.data.dao import EmployeeDao, ClientDao, ContractDao, PermissionDao, EventDao
-from epic_events.models import models
-from sqlalchemy import select
 import pytest
+from sqlalchemy import select
+
+from epic_events.data.dao import (
+    ClientDao,
+    ContractDao,
+    EmployeeDao,
+    EventDao,
+    PermissionDao,
+)
+from epic_events.models import models
 
 ed = EmployeeDao()
 cd = ClientDao()
@@ -22,6 +29,7 @@ def client2(connection):
     connection.add(client2)
     connection.commit()
     return client2
+
 
 # @pytest.fixture
 # def contract2(connection):
@@ -51,6 +59,7 @@ def client2(connection):
 #     connection.add(event2)
 #     connection.commit()
 #     return event2
+
 
 class TestEmployeeDao:
     def test_get_all_employee(self, monkeypatch, connection):
@@ -120,7 +129,9 @@ class TestContractDao:
 
         assert result == contracts
 
-    def test_contract_by_commercial_id(self, connection, dummy_employee_commercial, monkeypatch):
+    def test_contract_by_commercial_id(
+        self, connection, dummy_employee_commercial, monkeypatch
+    ):
         session = connection.execute(select(models.Contract))
         monkeypatch.setattr(
             "epic_events.data.dao.session.query", lambda Contract: session
@@ -139,19 +150,24 @@ class TestContractDao:
         assert result == contracts
 
     def test_add_contract(self, connection, monkeypatch):
-        datas = {"client_id":1,
-        "commercial_id":1,
-        "total_amount":100.00,
-        "due_amount":20.00,
-        "status":"signée",}
+        datas = {
+            "client_id": 1,
+            "commercial_id": 1,
+            "total_amount": 100.00,
+            "due_amount": 20.00,
+            "status": "signée",
+        }
 
-        
         monkeypatch.setattr(
             "epic_events.data.dao.session.add", lambda Contract: connection
         )
         result = ctd.add(datas)
 
-        assert result == connection.query(models.Contract).filter(models.Contract.id == 1).first()
+        assert (
+            result
+            == connection.query(models.Contract).filter(models.Contract.id == 1).first()
+        )
+
 
 class TestPermissionDao:
     def test_permissions_get_all(self, connection, monkeypatch):
@@ -170,4 +186,3 @@ class TestPermissionDao:
         )
         result = pd.get_by_id(1)
         assert result == client
-

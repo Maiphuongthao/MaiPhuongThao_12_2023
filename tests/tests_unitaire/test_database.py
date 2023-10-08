@@ -1,5 +1,5 @@
 import pytest
-from epic_events.models.models import Department, Employee
+from epic_events.models.models import Employee
 
 
 class TestDatabase:
